@@ -12,3 +12,17 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  # h2 DB
+  datasource:
+#    url: jdbc:h2:tcp://localhost/~/kafka
+    url: jdbc:h2:mem:kafka
+    username: swa1
+    password:
+    driver-class-name: org.h2.Driver
+
+  # jpa 설정
+  jpa:
+    database-platform: H2
+    hibernate:
+      ddl-auto: create
