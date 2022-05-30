@@ -3,6 +3,7 @@ package com.sds.swa1.sdk.consumer;
 import com.sds.swa1.sdk.service.IdempotentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -21,7 +22,12 @@ public class IdempotentConsumer {
                        @Payload final String payload,
                        Acknowledgment ack) {
         log.debug("Received eventId {} payload {}", key, payload);
-        kafkaService.processEvent(key, payload);
+        try {
+            kafkaService.processEvent(key, payload);
+        } catch (DuplicateKeyException e) {
+            log.debug("Duplicate message received key {} payload {}", key, payload);
+        }
         ack.acknowledge();
+        log.debug("complete acknowledge");
     }
 }
