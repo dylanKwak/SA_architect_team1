@@ -39,7 +39,6 @@ public class IdempotentService {
 
     private void deduplicate(String eventId) throws DuplicateKeyException{
         try {
-            //TODO: process Repository saveAndFlush
             eventRepository.saveAndFlush(new ProcessedEvent(eventId));
             log.debug("payload persisted with id {} ", eventId);
         }catch (DataIntegrityViolationException e) {
