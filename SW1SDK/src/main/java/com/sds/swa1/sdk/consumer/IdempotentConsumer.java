@@ -1,5 +1,6 @@
 package com.sds.swa1.sdk.consumer;
 
+import com.sds.swa1.sdk.common.Constants;
 import com.sds.swa1.sdk.service.IdempotentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,14 @@ import org.springframework.stereotype.Component;
 public class IdempotentConsumer {
     final IdempotentService kafkaService;
 
-    @KafkaListener(topics = "idempotent")
-    public void listen(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
+    @KafkaListener(topics = Constants.TOPIC_IDEMPOTENT)
+    public void listen(@Header(Constants.EVENT_ID_HEADER) String eventId,
+                       @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
                        @Payload final String payload,
                        Acknowledgment ack) {
-        log.debug("Received eventId {} payload {}", key, payload);
+        log.debug("Received eventId {} key {} payload {}", eventId, key, payload);
         try {
-            kafkaService.processEvent(key, payload);
+            kafkaService.processEvent(eventId, key, payload);
         } catch (DuplicateKeyException e) {
             log.debug("Duplicate message received key {} payload {}", key, payload);
         }

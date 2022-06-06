@@ -29,22 +29,22 @@ public class IdempotentService {
     EventRepository eventRepository;
 
     @Transactional
-    public void processEvent(String key, String payload) {
-        deduplicate(key);
-        log.debug("Idempotent processEvent key{}", key);
+    public void processEvent(String eventId, String key, String payload) {
+        deduplicate(eventId);
+        log.debug("Idempotent processEvent eventId{} key{}",eventId, key);
         if(listener != null) {
             listener.onProcess(payload);
         }
     }
 
-    private void deduplicate(String key) throws DuplicateKeyException{
+    private void deduplicate(String eventId) throws DuplicateKeyException{
         try {
             //TODO: process Repository saveAndFlush
-            eventRepository.saveAndFlush(new ProcessedEvent(key));
-            log.debug("payload persisted with id {} ", key);
+            eventRepository.saveAndFlush(new ProcessedEvent(eventId));
+            log.debug("payload persisted with id {} ", eventId);
         }catch (DataIntegrityViolationException e) {
-            log.warn("key already processed: {}", key);
-            throw new DuplicateKeyException(key);
+            log.warn("key already processed: {}", eventId);
+            throw new DuplicateKeyException(eventId);
         }
 
     }
